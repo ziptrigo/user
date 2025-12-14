@@ -21,11 +21,11 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         if password:
-            user.set_password(password)
+            user.set_password(password)  # type: ignore
         else:
-            user.set_unusable_password()
+            user.set_unusable_password()  # type: ignore
         user.save(using=self._db)
-        return user
+        return user  # type: ignore
 
     def create_superuser(
         self,

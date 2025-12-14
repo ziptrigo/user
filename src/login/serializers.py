@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from src.login.models import Permission, Role, RolePermission, Service, User
+from .models import Permission, Role, RolePermission, Service, User
 
 
 class LoginSerializer(serializers.Serializer):

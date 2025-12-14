@@ -1,3 +1,4 @@
+boto3
 django
 djangorestframework     # Django Rest Framework (DRF)
 drf-spectacular         # OpenAPI docs, nicer than standard DRF

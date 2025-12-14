@@ -1,12 +1,26 @@
-from django.contrib.auth.backends import ModelBackend
+from typing import Any
+from uuid import UUID
 
-from src.login.models import User
+from django.contrib.auth.backends import ModelBackend
+from django.http import HttpRequest
+
+from .models import User
 
 
 class EmailBackend(ModelBackend):
     """Authenticate using email instead of username."""
 
-    def authenticate(self, request, email=None, password=None, **kwargs):
+    def authenticate(
+        self,
+        request: HttpRequest | None,
+        username: str | None = None,
+        password: str | None = None,
+        **kwargs: Any,
+    ) -> User | None:
+        email = kwargs.get('email') or username
+        if not email or not password:
+            return None
+
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
@@ -16,7 +30,7 @@ class EmailBackend(ModelBackend):
             return user
         return None
 
-    def get_user(self, user_id):
+    def get_user(self, user_id: UUID | str) -> User | None:
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:

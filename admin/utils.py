@@ -41,7 +41,7 @@ class OS(str, Enum):
 def set_environment(environment: str):
     from dotenv import load_dotenv
 
-    from src.qr_code.common.environment import select_env
+    from src.login.common.environment import select_env
 
     selection = select_env(PROJECT_ROOT, environment)
     if selection.errors:
