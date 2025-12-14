@@ -3,12 +3,12 @@ from django.db import models
 
 class UserGlobalRole(models.Model):
     user = models.ForeignKey(
-        'user.User',
+        'User',
         on_delete=models.CASCADE,
         related_name='global_roles',
     )
     role = models.ForeignKey(
-        'role.Role',
+        'Role',
         on_delete=models.CASCADE,
     )
 

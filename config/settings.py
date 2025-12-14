@@ -129,7 +129,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Custom user model
-AUTH_USER_MODEL = 'accounts.User'  # app_label from AppConfig.name
+# AppConfig.name is `src.login`, so the app label is `login`.
+AUTH_USER_MODEL = 'login.User'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = [

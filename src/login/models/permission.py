@@ -15,7 +15,7 @@ class Permission(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=16, choices=TYPE_CHOICES)
     service = models.ForeignKey(
-        'service.Service',
+        'Service',
         null=True,
         blank=True,
         on_delete=models.CASCADE,

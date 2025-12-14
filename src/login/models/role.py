@@ -6,7 +6,7 @@ from django.db import models
 class Role(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     service = models.ForeignKey(
-        'service.Service',
+        'Service',
         null=True,
         blank=True,
         on_delete=models.CASCADE,

@@ -3,12 +3,12 @@ from django.db import models
 
 class UserGlobalPermission(models.Model):
     user = models.ForeignKey(
-        'user.User',
+        'User',
         on_delete=models.CASCADE,
         related_name='global_permissions',
     )
     permission = models.ForeignKey(
-        'permission.Permission',
+        'Permission',
         on_delete=models.CASCADE,
     )
 
