@@ -163,7 +163,7 @@ Quick manual test sequence:
 3) Login as that user: `POST /api/auth/login` — receive JWT.
 4) Call protected endpoints with `Authorization: Bearer <token>`.
 
-Django admin: http://127.0.0.1:8000/admin/
+Django admin: http://127.0.0.1:8020/admin/
 
 ## Project Structure
 
