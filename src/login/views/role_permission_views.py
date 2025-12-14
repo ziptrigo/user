@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 
-from src.login.accounts.models import Permission, Role, Service
-from src.login.accounts.serializers import PermissionSerializer, RoleSerializer
+from src.login.models import Permission, Role, Service
+from src.login.serializers import PermissionSerializer, RoleSerializer
 
 
 class ServicePermissionListCreateView(generics.ListCreateAPIView):

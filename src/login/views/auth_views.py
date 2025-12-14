@@ -3,8 +3,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from src.login.accounts.models import User
-from src.login.accounts.serializers import LoginSerializer
+from src.login.models import User
+from src.login.serializers import LoginSerializer
 from src.core.jwt import build_jwt_for_user
 
 

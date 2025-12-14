@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from src.login.accounts.models import (
+from src.login.models import (
     Permission,
     Role,
     Service,
@@ -12,7 +12,7 @@ from src.login.accounts.models import (
     UserServicePermission,
     UserServiceRole,
 )
-from src.login.accounts.serializers import CreateServiceUserSerializer, UserSerializer
+from src.login.serializers import CreateServiceUserSerializer, UserSerializer
 
 
 class ServiceUserCreateView(APIView):

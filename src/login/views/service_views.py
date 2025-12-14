@@ -3,8 +3,8 @@ import secrets
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 
-from src.login.accounts.models import Service
-from src.login.accounts.serializers import ServiceSerializer
+from src.login.models import Service
+from src.login.serializers import ServiceSerializer
 
 
 class ServiceListCreateView(generics.ListCreateAPIView):
