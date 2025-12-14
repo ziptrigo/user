@@ -1,8 +1,8 @@
 import jwt
 from rest_framework import authentication, exceptions
 
-from src.login.jwt import decode_jwt
-from src.login.models import Service, User
+from .jwt import decode_jwt
+from .models import Service, User
 
 
 class JWTUserAuthentication(authentication.BaseAuthentication):

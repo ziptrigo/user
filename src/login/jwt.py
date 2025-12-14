@@ -3,7 +3,7 @@ import time
 import jwt
 from django.conf import settings
 
-from src.login.models import (
+from .models import (
     RolePermission,
     UserGlobalPermission,
     UserGlobalRole,

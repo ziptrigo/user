@@ -1,7 +1,7 @@
 from django.urls import path
 
-from src.login.views import role_permission_views, service_views, user_views
-from src.login.views.auth_views import LoginView
+from .views import role_permission_views, service_views, user_views
+from .views.auth_views import LoginView
 
 urlpatterns = [
     # Auth (Login)
