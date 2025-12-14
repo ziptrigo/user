@@ -133,7 +133,7 @@ AUTH_USER_MODEL = 'accounts.User'  # app_label from AppConfig.name
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
-    'src.core.backends.EmailBackend',
+    'src.login.backends.EmailBackend',
 ]
 
 # JWT settings
@@ -144,7 +144,7 @@ JWT_EXP_DELTA_SECONDS = int(os.getenv('JWT_EXP_DELTA_SECONDS', str(14 * 24 * 360
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'src.core.authentication.JWTUserAuthentication',
+        'src.login.authentication.JWTUserAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',

@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from src.login.models import User
 from src.login.serializers import LoginSerializer
-from src.core.jwt import build_jwt_for_user
+from src.login.jwt import build_jwt_for_user
 
 
 class LoginView(APIView):
