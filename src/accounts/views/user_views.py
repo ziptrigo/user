@@ -1,17 +1,18 @@
 from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from accounts.models import (
-    User,
-    Service,
-    Role,
     Permission,
+    Role,
+    Service,
+    User,
     UserServiceAssignment,
-    UserServiceRole,
     UserServicePermission,
+    UserServiceRole,
 )
-from accounts.serializers import UserSerializer, CreateServiceUserSerializer
+from accounts.serializers import CreateServiceUserSerializer, UserSerializer
 
 
 class ServiceUserCreateView(APIView):
@@ -28,10 +29,7 @@ class ServiceUserCreateView(APIView):
         permission_codes = serializer.validated_data.get('permissions', [])
 
         # Get or create user
-        user, created = User.objects.get_or_create(
-            email=email,
-            defaults={'name': name}
-        )
+        user, created = User.objects.get_or_create(email=email, defaults={'name': name})
 
         if created and password:
             user.set_password(password)
@@ -41,48 +39,34 @@ class ServiceUserCreateView(APIView):
         try:
             service = Service.objects.get(id=service_id)
         except Service.DoesNotExist:
-            return Response(
-                {'detail': 'Service not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'detail': 'Service not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Create service assignment
         assignment, _ = UserServiceAssignment.objects.get_or_create(
-            user=user,
-            service=service,
-            defaults={'created_by': request.user}
+            user=user, service=service, defaults={'created_by': request.user}
         )
 
         # Assign roles
         for role_name in role_names:
             try:
                 role = Role.objects.get(service=service, name=role_name)
-                UserServiceRole.objects.get_or_create(
-                    user=user,
-                    service=service,
-                    role=role
-                )
+                UserServiceRole.objects.get_or_create(user=user, service=service, role=role)
             except Role.DoesNotExist:
                 pass
 
         # Assign permissions
         for perm_code in permission_codes:
             try:
-                permission = Permission.objects.get(
-                    service=service,
-                    code=perm_code
-                )
+                permission = Permission.objects.get(service=service, code=perm_code)
                 UserServicePermission.objects.get_or_create(
-                    user=user,
-                    service=service,
-                    permission=permission
+                    user=user, service=service, permission=permission
                 )
             except Permission.DoesNotExist:
                 pass
 
         return Response(
             UserSerializer(user).data,
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
 
 
@@ -104,10 +88,7 @@ class UserDeactivateView(APIView):
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response(
-                {'detail': 'User not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         reason = request.data.get('reason', '')
         user.deactivate(reason)
@@ -122,10 +103,7 @@ class UserReactivateView(APIView):
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response(
-                {'detail': 'User not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         user.reactivate()
 
@@ -139,39 +117,34 @@ class UserServicesListView(APIView):
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response(
-                {'detail': 'User not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        assignments = UserServiceAssignment.objects.filter(
-            user=user
-        ).select_related('service')
+        assignments = UserServiceAssignment.objects.filter(user=user).select_related('service')
 
         services_data = []
         for assignment in assignments:
             service = assignment.service
 
             # Get roles
-            roles = UserServiceRole.objects.filter(
-                user=user,
-                service=service
-            ).select_related('role')
+            roles = UserServiceRole.objects.filter(user=user, service=service).select_related(
+                'role'
+            )
             role_names = [usr.role.name for usr in roles]
 
             # Get permissions
-            perms = UserServicePermission.objects.filter(
-                user=user,
-                service=service
-            ).select_related('permission')
+            perms = UserServicePermission.objects.filter(user=user, service=service).select_related(
+                'permission'
+            )
             perm_codes = [usp.permission.code for usp in perms]
 
-            services_data.append({
-                'service_id': str(service.id),
-                'service_name': service.name,
-                'roles': role_names,
-                'permissions': perm_codes,
-            })
+            services_data.append(
+                {
+                    'service_id': str(service.id),
+                    'service_name': service.name,
+                    'roles': role_names,
+                    'permissions': perm_codes,
+                }
+            )
 
         return Response(services_data)
 
@@ -185,8 +158,7 @@ class UserServiceAssignmentView(APIView):
             service = Service.objects.get(id=service_id)
         except (User.DoesNotExist, Service.DoesNotExist):
             return Response(
-                {'detail': 'User or service not found'},
-                status=status.HTTP_404_NOT_FOUND
+                {'detail': 'User or service not found'}, status=status.HTTP_404_NOT_FOUND
             )
 
         role_names = request.data.get('roles', [])
@@ -199,11 +171,7 @@ class UserServiceAssignmentView(APIView):
         for role_name in role_names:
             try:
                 role = Role.objects.get(service=service, name=role_name)
-                UserServiceRole.objects.create(
-                    user=user,
-                    service=service,
-                    role=role
-                )
+                UserServiceRole.objects.create(user=user, service=service, role=role)
             except Role.DoesNotExist:
                 pass
 
@@ -213,14 +181,9 @@ class UserServiceAssignmentView(APIView):
         # Assign new permissions
         for perm_code in permission_codes:
             try:
-                permission = Permission.objects.get(
-                    service=service,
-                    code=perm_code
-                )
+                permission = Permission.objects.get(service=service, code=perm_code)
                 UserServicePermission.objects.create(
-                    user=user,
-                    service=service,
-                    permission=permission
+                    user=user, service=service, permission=permission
                 )
             except Permission.DoesNotExist:
                 pass
@@ -233,8 +196,7 @@ class UserServiceAssignmentView(APIView):
             service = Service.objects.get(id=service_id)
         except (User.DoesNotExist, Service.DoesNotExist):
             return Response(
-                {'detail': 'User or service not found'},
-                status=status.HTTP_404_NOT_FOUND
+                {'detail': 'User or service not found'}, status=status.HTTP_404_NOT_FOUND
             )
 
         # Delete all associations

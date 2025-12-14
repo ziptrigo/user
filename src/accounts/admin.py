@@ -1,15 +1,16 @@
 from django.contrib import admin
+
 from accounts.models import (
-    Service,
     Permission,
     Role,
     RolePermission,
+    Service,
     User,
-    UserServiceAssignment,
-    UserServiceRole,
-    UserServicePermission,
-    UserGlobalRole,
     UserGlobalPermission,
+    UserGlobalRole,
+    UserServiceAssignment,
+    UserServicePermission,
+    UserServiceRole,
 )
 
 admin.site.register(Service)

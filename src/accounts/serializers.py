@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from accounts.models import Service, Permission, Role, User, RolePermission
+
+from accounts.models import Permission, Role, RolePermission, Service, User
 
 
 class LoginSerializer(serializers.Serializer):
@@ -69,9 +70,7 @@ class RoleSerializer(serializers.ModelSerializer):
         if permission_codes:
             service = validated_data.get('service')
             if service:
-                permissions = Permission.objects.filter(
-                    service=service, code__in=permission_codes
-                )
+                permissions = Permission.objects.filter(service=service, code__in=permission_codes)
             else:
                 permissions = Permission.objects.filter(
                     type=Permission.TYPE_GLOBAL, code__in=permission_codes
@@ -98,9 +97,7 @@ class RoleSerializer(serializers.ModelSerializer):
             # Add new permissions
             service = instance.service
             if service:
-                permissions = Permission.objects.filter(
-                    service=service, code__in=permission_codes
-                )
+                permissions = Permission.objects.filter(service=service, code__in=permission_codes)
             else:
                 permissions = Permission.objects.filter(
                     type=Permission.TYPE_GLOBAL, code__in=permission_codes

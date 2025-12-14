@@ -1,8 +1,13 @@
 import uuid
+
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 
 class Service(models.Model):
@@ -12,9 +17,7 @@ class Service(models.Model):
     client_id = models.CharField(max_length=64, unique=True)
     client_secret = models.CharField(max_length=128)
     status = models.CharField(
-        max_length=32,
-        choices=[('ACTIVE', 'Active'), ('INACTIVE', 'Inactive')],
-        default='ACTIVE'
+        max_length=32, choices=[('ACTIVE', 'Active'), ('INACTIVE', 'Inactive')], default='ACTIVE'
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -91,7 +94,9 @@ class Role(models.Model):
 
 class RolePermission(models.Model):
     role = models.ForeignKey('Role', on_delete=models.CASCADE, related_name='role_permissions')
-    permission = models.ForeignKey('Permission', on_delete=models.CASCADE, related_name='permission_roles')
+    permission = models.ForeignKey(
+        'Permission', on_delete=models.CASCADE, related_name='permission_roles'
+    )
 
     class Meta:
         unique_together = ('role', 'permission')
@@ -169,7 +174,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class UserServiceAssignment(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='service_assignments')
-    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='user_assignments')
+    service = models.ForeignKey(
+        'Service', on_delete=models.CASCADE, related_name='user_assignments'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         'User',
@@ -194,7 +201,9 @@ class UserServiceRole(models.Model):
 
 class UserServicePermission(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='service_permissions')
-    service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='user_permissions')
+    service = models.ForeignKey(
+        'Service', on_delete=models.CASCADE, related_name='user_permissions'
+    )
     permission = models.ForeignKey('Permission', on_delete=models.CASCADE)
 
     class Meta:

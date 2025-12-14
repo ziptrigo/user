@@ -1,13 +1,15 @@
-import jwt
 import time
+
+import jwt
 from django.conf import settings
+
 from accounts.models import (
-    UserServiceAssignment,
-    UserServiceRole,
-    UserServicePermission,
-    UserGlobalRole,
-    UserGlobalPermission,
     RolePermission,
+    UserGlobalPermission,
+    UserGlobalRole,
+    UserServiceAssignment,
+    UserServicePermission,
+    UserServiceRole,
 )
 
 
@@ -23,30 +25,24 @@ def build_jwt_for_user(user) -> tuple[str, int]:
 
     # Collect global permissions
     global_perms = set()
-    direct_global_perms = UserGlobalPermission.objects.filter(
-        user=user
-    ).select_related('permission')
+    direct_global_perms = UserGlobalPermission.objects.filter(user=user).select_related(
+        'permission'
+    )
     for ugp in direct_global_perms:
         global_perms.add(ugp.permission.code)
 
     # Collect global roles and their permissions
     global_roles = []
-    user_global_roles = UserGlobalRole.objects.filter(
-        user=user
-    ).select_related('role')
+    user_global_roles = UserGlobalRole.objects.filter(user=user).select_related('role')
     for ugr in user_global_roles:
         global_roles.append(ugr.role.name)
-        role_perms = RolePermission.objects.filter(
-            role=ugr.role
-        ).select_related('permission')
+        role_perms = RolePermission.objects.filter(role=ugr.role).select_related('permission')
         for rp in role_perms:
             global_perms.add(rp.permission.code)
 
     # Collect service-specific data
     services_data = {}
-    assignments = UserServiceAssignment.objects.filter(
-        user=user
-    ).select_related('service')
+    assignments = UserServiceAssignment.objects.filter(user=user).select_related('service')
 
     for assignment in assignments:
         service_id = str(assignment.service.id)
@@ -66,9 +62,7 @@ def build_jwt_for_user(user) -> tuple[str, int]:
         ).select_related('role')
         for usr in user_roles:
             service_roles.append(usr.role.name)
-            role_perms = RolePermission.objects.filter(
-                role=usr.role
-            ).select_related('permission')
+            role_perms = RolePermission.objects.filter(role=usr.role).select_related('permission')
             for rp in role_perms:
                 service_perms.add(rp.permission.code)
 
@@ -87,11 +81,7 @@ def build_jwt_for_user(user) -> tuple[str, int]:
         'services': services_data,
     }
 
-    token = jwt.encode(
-        payload,
-        settings.JWT_SECRET,
-        algorithm=settings.JWT_ALGORITHM
-    )
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
     return token, settings.JWT_EXP_DELTA_SECONDS
 
@@ -109,8 +99,4 @@ def decode_jwt(token: str) -> dict:
     Raises:
         jwt.InvalidTokenError: If token is invalid or expired
     """
-    return jwt.decode(
-        token,
-        settings.JWT_SECRET,
-        algorithms=[settings.JWT_ALGORITHM]
-    )
+    return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
