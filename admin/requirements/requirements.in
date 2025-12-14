@@ -1,5 +1,6 @@
 boto3
 django
+django-jazzmin          # Admin site theme
 djangorestframework     # Django Rest Framework (DRF)
 drf-spectacular         # OpenAPI docs, nicer than standard DRF
 pyjwt
