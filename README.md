@@ -143,7 +143,7 @@ X-Client-Secret: <client_secret>
 
 ## Configuration
 
-Key settings in `src/login/settings.py`:
+Key settings in `config/settings.py`:
 
 - `AUTH_USER_MODEL = 'accounts.User'`
 - DRF defaults: `IsAuthenticated`; admin endpoints layer `IsAdminUser`
@@ -168,15 +168,17 @@ Django admin: http://127.0.0.1:8000/admin/
 ## Project Structure
 
 ```
-manage.py           # Django management script (adds src/ to sys.path)
+manage.py           # Django management script
 requirements.txt    # Python dependencies
 docs/               # Documentation
 src/                # Source code
-  login/            # Django project configuration
-    settings.py     # Settings
-    urls.py         # Main URL routing
-    wsgi.py         # WSGI application
-    asgi.py         # ASGI application
+  login/            # App namespace (templates, etc.)
+    templates/      # HTML templates
+config/             # Django project configuration
+  settings.py       # Settings
+  urls.py           # Main URL routing
+  wsgi.py           # WSGI application
+  asgi.py           # ASGI application
   core/             # Core functionality
     jwt.py          # JWT utilities
     authentication.py  # DRF authentication classes

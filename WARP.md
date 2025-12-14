@@ -19,12 +19,11 @@ Centralized Single Sign-On (SSO) service for ZipTrigo applications. Provides JWT
 ## App and Project Structure
 The Django project is named `login` and code lives under `src/`.
 
-- Project config: `src/login` (settings, urls, wsgi/asgi)
+- Project config: `config/` (settings, urls, wsgi/asgi)
 - Apps:
   - `src/accounts`: models, serializers, API views, app urls
   - `src/core`: authentication backends and JWT helpers
-- Templates: `src/templates`
-- Root Utilities: `manage.py` adds `src/` to `PYTHONPATH`
+- Templates: `src/login/templates`
 
 ## Current Status
 - Custom `User` model with email as username
@@ -47,7 +46,7 @@ The Django project is named `login` and code lives under `src/`.
 - Minimal UI: `/` renders `hello.html`
 
 ## Configuration
-Key settings in `src/login/settings.py`:
+Key settings in `config/settings.py`:
 - `AUTH_USER_MODEL = 'accounts.User'`
 - DRF defaults to `IsAuthenticated`; admin endpoints add `IsAdminUser`
 - JWT:

@@ -3,9 +3,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.models import User
-from accounts.serializers import LoginSerializer
-from core.jwt import build_jwt_for_user
+from src.accounts.models import User
+from src.accounts.serializers import LoginSerializer
+from src.core.jwt import build_jwt_for_user
 
 
 class LoginView(APIView):
