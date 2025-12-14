@@ -133,7 +133,7 @@ X-Client-Secret: <client_secret>
 
 ## Configuration
 
-Key settings in `login_service/settings.py`:
+Key settings in `src/login/settings.py`:
 
 - `JWT_SECRET` - Secret key for JWT signing (change in production!)
 - `JWT_ALGORITHM` - Algorithm for JWT (default: HS256)
@@ -150,28 +150,33 @@ Access Django admin at: http://127.0.0.1:8000/admin/
 ## Project Structure
 
 ```
-login_service/          # Django project configuration
-  settings.py           # Settings
-  urls.py              # Main URL routing
-
-core/                  # Core functionality
-  jwt.py              # JWT utilities
-  authentication.py   # DRF authentication classes
-  backends.py         # Django authentication backend
-
-accounts/             # Main app
-  models.py           # Data models
-  serializers.py      # DRF serializers
-  views/              # API views
-    auth_views.py
-    service_views.py
-    role_permission_views.py
-    user_views.py
-  urls.py             # App URL routing
-
-templates/            # HTML templates
-  base.html
-  hello.html
+login/
+  manage.py           # Django management script
+  requirements.txt    # Python dependencies
+  docs/              # Documentation
+  src/               # Source code
+    login/           # Django project configuration
+      settings.py    # Settings
+      urls.py        # Main URL routing
+      wsgi.py        # WSGI application
+      asgi.py        # ASGI application
+    core/            # Core functionality
+      jwt.py         # JWT utilities
+      authentication.py  # DRF authentication classes
+      backends.py    # Django authentication backend
+    accounts/        # Main app
+      models.py      # Data models
+      serializers.py # DRF serializers
+      views/         # API views
+        auth_views.py
+        service_views.py
+        role_permission_views.py
+        user_views.py
+      urls.py        # App URL routing
+      admin.py       # Admin configuration
+    templates/       # HTML templates
+      base.html
+      hello.html
 ```
 
 ## License
