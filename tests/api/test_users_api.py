@@ -1,6 +1,6 @@
 import pytest
 
-from src.login.models import (
+from src.user.models import (
     Permission,
     Role,
     User,
@@ -9,11 +9,12 @@ from src.login.models import (
     UserServiceRole,
 )
 
-
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 
 
-def test_admin_can_create_service_user_and_assign_roles_permissions(api_client, admin_user, service):
+def test_admin_can_create_service_user_and_assign_roles_permissions(
+    api_client, admin_user, service
+):
     api_client.force_authenticate(user=admin_user)
 
     role = Role.objects.create(service=service, name='editor', description='Editor')
@@ -45,7 +46,9 @@ def test_admin_can_create_service_user_and_assign_roles_permissions(api_client, 
 
     assert UserServiceAssignment.objects.filter(user=user, service=service).exists()
     assert UserServiceRole.objects.filter(user=user, service=service, role=role).exists()
-    assert UserServicePermission.objects.filter(user=user, service=service, permission=permission).exists()
+    assert UserServicePermission.objects.filter(
+        user=user, service=service, permission=permission
+    ).exists()
 
 
 def test_admin_can_deactivate_and_reactivate_user(api_client, admin_user, regular_user: User):
@@ -102,7 +105,9 @@ def test_user_services_list_includes_roles_and_permissions(api_client, admin_use
 def test_admin_can_update_user_service_assignment_and_remove_it(api_client, admin_user, service):
     api_client.force_authenticate(user=admin_user)
 
-    user = User.objects.create_user(email='assign.user@example.com', password='password123', name='')
+    user = User.objects.create_user(
+        email='assign.user@example.com', password='password123', name=''
+    )
 
     role_editor = Role.objects.create(service=service, name='editor', description='Editor')
     role_viewer = Role.objects.create(service=service, name='viewer', description='Viewer')
@@ -134,7 +139,9 @@ def test_admin_can_update_user_service_assignment_and_remove_it(api_client, admi
     assert UserServiceRole.objects.filter(user=user, service=service).count() == 1
     assert UserServiceRole.objects.filter(user=user, service=service, role=role_viewer).exists()
     assert UserServicePermission.objects.filter(user=user, service=service).count() == 1
-    assert UserServicePermission.objects.filter(user=user, service=service, permission=perm_write).exists()
+    assert UserServicePermission.objects.filter(
+        user=user, service=service, permission=perm_write
+    ).exists()
 
     delete = api_client.delete(f'/api/users/{user.id}/services/{service.id}')
 

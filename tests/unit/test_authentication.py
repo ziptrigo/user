@@ -6,9 +6,8 @@ import pytest
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APIRequestFactory
 
-from src.login.authentication import JWTUserAuthentication, ServiceAuthentication
-from src.login.models import Service, User
-
+from src.user.authentication import JWTUserAuthentication, ServiceAuthentication
+from src.user.models import Service, User
 
 pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 

@@ -5,7 +5,7 @@ from factory.django import DjangoModelFactory
 
 class UserFactory(DjangoModelFactory):
     class Meta:
-        model = 'login.User'
+        model = 'user.User'
 
     email = factory.Sequence(lambda n: f'user{n}@example.com')
     name = Faker('name')
@@ -18,5 +18,5 @@ class UserFactory(DjangoModelFactory):
         if not create:
             return
         raw_password = extracted or 'password123'
-        self.set_password(raw_password)
-        self.save(update_fields=['password'])
+        self.set_password(raw_password)  # type: ignore
+        self.save(update_fields=['password'])  # type: ignore

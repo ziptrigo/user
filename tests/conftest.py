@@ -32,7 +32,7 @@ def regular_user():
 
 @pytest.fixture()
 def service():
-    from src.login.models import Service
+    from src.user.models import Service
 
     return Service.objects.create(
         name=f'service-{uuid.uuid4().hex}',
@@ -45,7 +45,7 @@ def service():
 
 @pytest.fixture()
 def service_permission(service):
-    from src.login.models import Permission
+    from src.user.models import Permission
 
     return Permission.objects.create(
         type=Permission.TYPE_SERVICE,
@@ -57,7 +57,7 @@ def service_permission(service):
 
 @pytest.fixture()
 def global_permission():
-    from src.login.models import Permission
+    from src.user.models import Permission
 
     return Permission.objects.create(
         type=Permission.TYPE_GLOBAL,
@@ -69,13 +69,13 @@ def global_permission():
 
 @pytest.fixture()
 def service_role(service):
-    from src.login.models import Role
+    from src.user.models import Role
 
     return Role.objects.create(service=service, name='editor', description='Editor role')
 
 
 @pytest.fixture()
 def global_role():
-    from src.login.models import Role
+    from src.user.models import Role
 
     return Role.objects.create(service=None, name='super_admin', description='Global super admin')

@@ -1,8 +1,7 @@
 import pytest
 
-from src.login.jwt import decode_jwt
-from src.login.models import User
-
+from src.user.jwt import decode_jwt
+from src.user.models import User
 
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 

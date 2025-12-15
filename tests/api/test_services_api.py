@@ -1,7 +1,6 @@
 import pytest
 
-from src.login.models import Service
-
+from src.user.models import Service
 
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 
@@ -25,7 +24,7 @@ def test_admin_can_create_service_and_client_credentials_are_generated(
         calls.append(n)
         return f'token-{n}'
 
-    monkeypatch.setattr('src.login.api.services.secrets.token_urlsafe', fake_token_urlsafe)
+    monkeypatch.setattr('src.user.api.services.secrets.token_urlsafe', fake_token_urlsafe)
 
     response = api_client.post(
         '/api/services',

@@ -4,7 +4,7 @@ from .api import roles_permissions, services, users
 from .api.auth import LoginView
 
 urlpatterns = [
-    # Auth (Login)
+    # Authentication (login)
     path('auth/login', LoginView.as_view(), name='api-login'),
     # Services
     path('services', services.ServiceListCreateView.as_view(), name='service-list-create'),

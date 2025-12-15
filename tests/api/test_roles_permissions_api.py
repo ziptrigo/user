@@ -1,7 +1,6 @@
 import pytest
 
-from src.login.models import Permission, RolePermission
-
+from src.user.models import Permission, RolePermission
 
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 

@@ -1,4 +1,4 @@
-"""ASGI config for login.
+"""ASGI config for user.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

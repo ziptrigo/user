@@ -1,4 +1,4 @@
-"""WSGI config for login.
+"""WSGI config for user.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

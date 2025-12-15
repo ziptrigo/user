@@ -1,4 +1,4 @@
-# Login Service Project
+# User Service Project
 
 ## Project Overview
 Centralized Single Sign-On (SSO) service for ZipTrigo applications. Provides JWT-based user authentication, service (machine-to-machine) authentication via client_id/client_secret, centralized users/roles/permissions, and a minimal HTMX landing page.
@@ -17,16 +17,16 @@ Centralized Single Sign-On (SSO) service for ZipTrigo applications. Provides JWT
 - DB: SQLite for dev; PostgreSQL recommended for prod
 
 ## App and Project Structure
-The Django project config lives in `config/`, and the Django app is `src/login` (installed as `src.login`).
-- Models: `src/login/models/` is a package (one model per file). Import via `from src.login.models import ...`.
-- Views: `src/login/views/` contains DRF views grouped by domain.
-- Serializers: `src/login/serializers.py`.
-- Auth/JWT helpers: `src/login/authentication.py`, `src/login/backends.py`, `src/login/jwt.py`.
-- Templates: `src/login/templates/`.
+The Django project config lives in `config/`, and the Django app is `src/user` (installed as `src.user`).
+- Models: `src/user/models/` is a package (one model per file). Import via `from src.user.models import ...`.
+- Views: `src/user/views/` contains DRF views grouped by domain.
+- Serializers: `src/user/serializers.py`.
+- Auth/JWT helpers: `src/user/authentication.py`, `src/user/backends.py`, `src/user/jwt.py`.
+- Templates: `src/user/templates/`.
 
 ## Current Status
 - Custom `User` model with email as username
-- JWT utilities: `src/login/jwt.py` builds tokens including global + per-service roles/permissions
+- JWT utilities: `src/user/jwt.py` builds tokens including global + per-service roles/permissions
 - DRF authentication:
   - `JWTUserAuthentication` (Authorization: Bearer <token>)
   - `ServiceAuthentication` (X-Client-Id / X-Client-Secret)
@@ -46,13 +46,13 @@ The Django project config lives in `config/`, and the Django app is `src/login` 
 
 ## Configuration
 Key settings live in `config/settings.py`:
-- Custom user model: `src.login.models.user.User` (set via `AUTH_USER_MODEL`).
+- Custom user model: `src.user.models.user.User` (set via `AUTH_USER_MODEL`).
 - DRF defaults to `IsAuthenticated`; admin endpoints add `IsAdminUser`.
 - JWT:
   - `JWT_SECRET` (set via env in prod)
   - `JWT_ALGORITHM` (default: HS256)
   - `JWT_EXP_DELTA_SECONDS` (default: 14 days)
-- Email-based auth backend: `src.login.backends.EmailBackend`.
+- Email-based auth backend: `src.user.backends.EmailBackend`.
 
 ## How to Run (dev)
 1. Create venv and install deps: `pip install -r requirements.txt`
