@@ -9,7 +9,6 @@ from rest_framework.test import APIRequestFactory
 from src.user.authentication import JWTUserAuthentication, ServiceAuthentication
 from src.user.models import Service, User
 
-
 pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 
 

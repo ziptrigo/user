@@ -3,7 +3,6 @@ import pytest
 from src.user.jwt import decode_jwt
 from src.user.models import User
 
-
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 
 

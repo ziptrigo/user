@@ -2,7 +2,6 @@ import pytest
 
 from src.user.models import Service
 
-
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 
 

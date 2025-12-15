@@ -3,7 +3,6 @@ from django.utils import timezone
 
 from src.user.models import User
 
-
 pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 
 

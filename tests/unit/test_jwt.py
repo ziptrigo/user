@@ -15,7 +15,6 @@ from src.user.models import (
     UserServiceRole,
 )
 
-
 pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 
 
@@ -33,7 +32,9 @@ def test_build_jwt_for_user_includes_global_and_service_claims(
     RolePermission.objects.create(role=global_role, permission=global_permission)
 
     UserServiceAssignment.objects.create(user=regular_user, service=service, created_by=None)
-    UserServicePermission.objects.create(user=regular_user, service=service, permission=service_permission)
+    UserServicePermission.objects.create(
+        user=regular_user, service=service, permission=service_permission
+    )
 
     UserServiceRole.objects.create(user=regular_user, service=service, role=service_role)
     RolePermission.objects.create(role=service_role, permission=service_permission)
