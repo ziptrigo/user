@@ -18,5 +18,5 @@ class UserFactory(DjangoModelFactory):
         if not create:
             return
         raw_password = extracted or 'password123'
-        self.set_password(raw_password)
-        self.save(update_fields=['password'])
+        self.set_password(raw_password)  # type: ignore
+        self.save(update_fields=['password'])  # type: ignore
