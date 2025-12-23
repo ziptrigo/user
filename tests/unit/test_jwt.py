@@ -1,9 +1,6 @@
-import time
-
-import jwt
 import pytest
+from ninja_jwt.exceptions import TokenError
 
-from src.user.jwt import build_jwt_for_user, decode_jwt
 from src.user.models import (
     Permission,
     RolePermission,
@@ -14,11 +11,12 @@ from src.user.models import (
     UserServicePermission,
     UserServiceRole,
 )
+from src.user.tokens import CustomAccessToken, CustomRefreshToken
 
 pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 
 
-def test_build_jwt_for_user_includes_global_and_service_claims(
+def test_custom_access_token_includes_global_and_service_claims(
     regular_user: User,
     service,
     global_permission: Permission,
@@ -39,34 +37,35 @@ def test_build_jwt_for_user_includes_global_and_service_claims(
     UserServiceRole.objects.create(user=regular_user, service=service, role=service_role)
     RolePermission.objects.create(role=service_role, permission=service_permission)
 
-    token, expires_in = build_jwt_for_user(regular_user)
+    token = CustomAccessToken.for_user(regular_user)
 
-    assert isinstance(token, str)
-    assert expires_in == 3600
-
-    payload = decode_jwt(token)
-
-    assert payload['sub'] == str(regular_user.id)
-    assert payload['email'] == regular_user.email
-    assert set(payload['global_permissions']) == {'admin'}
-    assert payload['global_roles'] == ['super_admin']
+    assert isinstance(str(token), str)
+    assert token['sub'] == str(regular_user.id)
+    assert token['email'] == regular_user.email
+    assert set(token['global_permissions']) == {'admin'}
+    assert token['global_roles'] == ['super_admin']
 
     service_id = str(service.id)
-    assert service_id in payload['services']
-    assert set(payload['services'][service_id]['permissions']) == {'read'}
-    assert payload['services'][service_id]['roles'] == ['editor']
+    assert service_id in token['services']
+    assert set(token['services'][service_id]['permissions']) == {'read'}
+    assert token['services'][service_id]['roles'] == ['editor']
 
 
-def test_decode_jwt_rejects_invalid_signature(settings, regular_user: User):
-    now = int(time.time())
-    payload = {
-        'sub': str(regular_user.id),
-        'email': regular_user.email,
-        'iat': now,
-        'exp': now + 60,
-    }
+def test_custom_refresh_token_creates_access_token(regular_user: User):
+    refresh = CustomRefreshToken.for_user(regular_user)
+    access = refresh.access_token
 
-    wrong_secret_token = jwt.encode(payload, 'wrong-secret', algorithm=settings.JWT_ALGORITHM)
+    assert isinstance(access, CustomAccessToken)
+    assert access['sub'] == str(regular_user.id)
+    assert access['email'] == regular_user.email
 
-    with pytest.raises(jwt.InvalidTokenError):
-        decode_jwt(wrong_secret_token)
+
+def test_token_rejects_invalid_signature(settings, regular_user: User):
+    token = CustomAccessToken.for_user(regular_user)
+    token_str = str(token)
+
+    # Tamper with the token
+    tampered_token = token_str[:-5] + 'XXXXX'
+
+    with pytest.raises(TokenError):
+        CustomAccessToken(tampered_token)

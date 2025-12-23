@@ -1,4 +1,4 @@
-from .auth import LoginRequest, TokenResponse
+from .auth import LoginRequest, RefreshRequest, TokenResponse
 from .roles_permissions import (
     PermissionCreate,
     PermissionListResponse,
@@ -25,6 +25,7 @@ from .users import (
 
 __all__ = [
     'LoginRequest',
+    'RefreshRequest',
     'TokenResponse',
     'PermissionCreate',
     'PermissionListResponse',

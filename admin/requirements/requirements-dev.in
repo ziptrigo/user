@@ -3,7 +3,6 @@
 black
 boto3-stubs[s3,ses]
 django-stubs
-djangorestframework-stubs
 factory-boy
 faker
 flake8

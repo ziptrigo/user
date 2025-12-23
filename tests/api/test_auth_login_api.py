@@ -1,7 +1,7 @@
 import pytest
 
-from src.user.jwt import decode_jwt
 from src.user.models import User
+from src.user.tokens import CustomAccessToken
 
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 
@@ -16,10 +16,13 @@ def test_login_returns_jwt_for_active_user(api_client, regular_user: User):
     data = response.json()
     assert data['token_type'] == 'Bearer'
     assert data['expires_in'] == 3600
+    assert 'access_token' in data
+    assert 'refresh_token' in data
 
-    payload = decode_jwt(data['access_token'])
-    assert payload['email'] == regular_user.email
-    assert payload['sub'] == str(regular_user.id)
+    # Decode and verify access token
+    token = CustomAccessToken(data['access_token'])
+    assert token['email'] == regular_user.email
+    assert token['sub'] == str(regular_user.id)
 
 
 def test_login_rejects_invalid_credentials(api_client, regular_user: User):
