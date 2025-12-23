@@ -15,9 +15,10 @@ def _jwt_settings(settings):
 
 @pytest.fixture()
 def api_client():
-    from rest_framework.test import APIClient
+    from ninja.testing import TestClient
+    from src.user.api import api
 
-    return APIClient()
+    return TestClient(api)
 
 
 @pytest.fixture()

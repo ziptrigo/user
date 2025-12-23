@@ -13,7 +13,7 @@ The User service provides:
 
 ## Tech Stack
 
-- Backend: Django 6.0, Python 3.13, Django REST Framework
+- Backend: Django 6.0, Python 3.13, Django Ninja
 - Frontend: HTMX (minimal landing page)
 - Database: SQLite (development) / PostgreSQL (production)
 
@@ -50,9 +50,8 @@ python manage.py runserver
 ## API Endpoints
 
 ### API Documentation
-- `/api/schema/` - OpenAPI schema (append `?format=json` or `?format=yaml`)
-- `/api/docs/` - Interactive Swagger UI documentation (supports Authorize with Bearer tokens)
-- `/api/redoc/` - ReDoc documentation
+- `/api/docs` - Interactive Swagger UI documentation (supports Authorize with Bearer tokens)
+- `/api/openapi.json` - OpenAPI 3 schema in JSON format
 
 ### Authentication
 
@@ -181,15 +180,21 @@ src/
       user_service_permission.py
       user_global_role.py
       user_global_permission.py
-    views/                # DRF views split by domain
-      auth_views.py
-      service_views.py
-      role_permission_views.py
-      user_views.py
+    schemas/              # Pydantic v2 schemas split by domain
+      __init__.py
+      auth.py
+      services.py
+      users.py
+      roles_permissions.py
+    routers/              # Django Ninja routers split by domain
+      __init__.py
+      auth.py
+      services.py
+      users.py
+      roles_permissions.py
     admin.py              # Django admin registrations
-    serializers.py        # DRF serializers
-    urls.py               # App URL routing (/api/...)
-    authentication.py     # DRF authentication classes
+    api.py                # Main NinjaAPI instance
+    auth.py               # Django Ninja authentication classes
     backends.py           # Django authentication backend(s)
     jwt.py                # JWT build/verify helpers
     templates/            # Minimal UI templates

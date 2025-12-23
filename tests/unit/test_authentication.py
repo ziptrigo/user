@@ -1,26 +1,45 @@
 import time
 import uuid
+from unittest.mock import Mock
 
 import jwt
 import pytest
-from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.test import APIRequestFactory
 
-from src.user.authentication import JWTUserAuthentication, ServiceAuthentication
-from src.user.models import Service, User
+from src.user.auth import AdminAuth, JWTAuth
+from src.user.models import User
 
 pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 
 
-def test_jwt_user_authentication_returns_none_without_bearer_header():
-    request = APIRequestFactory().get('/')
-
-    result = JWTUserAuthentication().authenticate(request)
-
+def test_jwt_auth_returns_none_without_valid_token():
+    request = Mock()
+    
+    result = JWTAuth().authenticate(request, '')
+    
     assert result is None
 
 
-def test_jwt_user_authentication_rejects_expired_token(settings, regular_user: User):
+def test_jwt_auth_accepts_valid_token(settings, regular_user: User):
+    now = int(time.time())
+    token = jwt.encode(
+        {
+            'sub': str(regular_user.id),
+            'email': regular_user.email,
+            'iat': now,
+            'exp': now + 60,
+        },
+        settings.JWT_SECRET,
+        algorithm=settings.JWT_ALGORITHM,
+    )
+    
+    request = Mock()
+    result = JWTAuth().authenticate(request, token)
+    
+    assert result is not None
+    assert result.id == regular_user.id
+
+
+def test_jwt_auth_returns_none_for_expired_token(settings, regular_user: User):
     now = int(time.time())
     token = jwt.encode(
         {
@@ -32,21 +51,22 @@ def test_jwt_user_authentication_rejects_expired_token(settings, regular_user: U
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
-
-    request = APIRequestFactory().get('/', HTTP_AUTHORIZATION=f'Bearer {token}')
-
-    with pytest.raises(AuthenticationFailed, match='Token has expired'):
-        JWTUserAuthentication().authenticate(request)
-
-
-def test_jwt_user_authentication_rejects_invalid_token():
-    request = APIRequestFactory().get('/', HTTP_AUTHORIZATION='Bearer not-a-jwt')
-
-    with pytest.raises(AuthenticationFailed, match='Invalid token'):
-        JWTUserAuthentication().authenticate(request)
+    
+    request = Mock()
+    result = JWTAuth().authenticate(request, token)
+    
+    assert result is None
 
 
-def test_jwt_user_authentication_rejects_missing_sub(settings, regular_user: User):
+def test_jwt_auth_returns_none_for_invalid_token():
+    request = Mock()
+    
+    result = JWTAuth().authenticate(request, 'not-a-jwt')
+    
+    assert result is None
+
+
+def test_jwt_auth_returns_none_for_missing_sub(settings, regular_user: User):
     now = int(time.time())
     token = jwt.encode(
         {
@@ -57,14 +77,14 @@ def test_jwt_user_authentication_rejects_missing_sub(settings, regular_user: Use
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
+    
+    request = Mock()
+    result = JWTAuth().authenticate(request, token)
+    
+    assert result is None
 
-    request = APIRequestFactory().get('/', HTTP_AUTHORIZATION=f'Bearer {token}')
 
-    with pytest.raises(AuthenticationFailed, match='Token missing user ID'):
-        JWTUserAuthentication().authenticate(request)
-
-
-def test_jwt_user_authentication_rejects_unknown_user(settings):
+def test_jwt_auth_returns_none_for_unknown_user(settings):
     now = int(time.time())
     token = jwt.encode(
         {
@@ -76,17 +96,17 @@ def test_jwt_user_authentication_rejects_unknown_user(settings):
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
+    
+    request = Mock()
+    result = JWTAuth().authenticate(request, token)
+    
+    assert result is None
 
-    request = APIRequestFactory().get('/', HTTP_AUTHORIZATION=f'Bearer {token}')
 
-    with pytest.raises(AuthenticationFailed, match='User not found'):
-        JWTUserAuthentication().authenticate(request)
-
-
-def test_jwt_user_authentication_rejects_inactive_user(settings, regular_user: User):
+def test_jwt_auth_returns_none_for_inactive_user(settings, regular_user: User):
     regular_user.status = User.STATUS_INACTIVE
     regular_user.save(update_fields=['status'])
-
+    
     now = int(time.time())
     token = jwt.encode(
         {
@@ -98,57 +118,47 @@ def test_jwt_user_authentication_rejects_inactive_user(settings, regular_user: U
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
-
-    request = APIRequestFactory().get('/', HTTP_AUTHORIZATION=f'Bearer {token}')
-
-    with pytest.raises(AuthenticationFailed, match='User account is not active'):
-        JWTUserAuthentication().authenticate(request)
-
-
-def test_service_authentication_returns_none_when_headers_missing():
-    request = APIRequestFactory().get('/')
-
-    result = ServiceAuthentication().authenticate(request)
-
+    
+    request = Mock()
+    result = JWTAuth().authenticate(request, token)
+    
     assert result is None
 
 
-def test_service_authentication_accepts_valid_credentials(service: Service):
-    request = APIRequestFactory().get(
-        '/',
-        HTTP_X_CLIENT_ID=service.client_id,
-        HTTP_X_CLIENT_SECRET=service.client_secret,
+def test_admin_auth_accepts_staff_user(settings, admin_user: User):
+    now = int(time.time())
+    token = jwt.encode(
+        {
+            'sub': str(admin_user.id),
+            'email': admin_user.email,
+            'iat': now,
+            'exp': now + 60,
+        },
+        settings.JWT_SECRET,
+        algorithm=settings.JWT_ALGORITHM,
     )
-
-    user_auth_tuple = ServiceAuthentication().authenticate(request)
-
-    assert user_auth_tuple is not None
-    user, authed_service = user_auth_tuple
-    assert user is None
-    assert authed_service.id == service.id
-    assert request.service.id == service.id
+    
+    request = Mock()
+    result = AdminAuth().authenticate(request, token)
+    
+    assert result is not None
+    assert result.id == admin_user.id
 
 
-def test_service_authentication_rejects_invalid_credentials(service: Service):
-    request = APIRequestFactory().get(
-        '/',
-        HTTP_X_CLIENT_ID=service.client_id,
-        HTTP_X_CLIENT_SECRET='wrong',
+def test_admin_auth_rejects_non_staff_user(settings, regular_user: User):
+    now = int(time.time())
+    token = jwt.encode(
+        {
+            'sub': str(regular_user.id),
+            'email': regular_user.email,
+            'iat': now,
+            'exp': now + 60,
+        },
+        settings.JWT_SECRET,
+        algorithm=settings.JWT_ALGORITHM,
     )
-
-    with pytest.raises(AuthenticationFailed, match='Invalid client credentials'):
-        ServiceAuthentication().authenticate(request)
-
-
-def test_service_authentication_rejects_inactive_service(service: Service):
-    service.status = 'INACTIVE'
-    service.save(update_fields=['status'])
-
-    request = APIRequestFactory().get(
-        '/',
-        HTTP_X_CLIENT_ID=service.client_id,
-        HTTP_X_CLIENT_SECRET=service.client_secret,
-    )
-
-    with pytest.raises(AuthenticationFailed, match='Service is not active'):
-        ServiceAuthentication().authenticate(request)
+    
+    request = Mock()
+    result = AdminAuth().authenticate(request, token)
+    
+    assert result is None
