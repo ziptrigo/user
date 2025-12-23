@@ -71,6 +71,25 @@ Content-Type: application/json
 Response 200:
 {
   "access_token": "eyJ...",
+  "refresh_token": "eyJ...",
+  "expires_in": 1209600,
+  "token_type": "Bearer"
+}
+```
+
+**Token Refresh (open endpoint)**
+```
+POST /api/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "eyJ..."
+}
+
+Response 200:
+{
+  "access_token": "eyJ...",
+  "refresh_token": "eyJ...",
   "expires_in": 1209600,
   "token_type": "Bearer"
 }
@@ -143,8 +162,13 @@ X-Client-Secret: <client_secret>
 ## Configuration
 Key settings live in `config/settings.py`.
 - Custom user model: `src.user.models.user.User` (set via `AUTH_USER_MODEL`).
-- DRF defaults: `IsAuthenticated`; admin endpoints layer `IsAdminUser`.
-- JWT:
+- JWT Authentication: Uses `django-ninja-jwt` for token management
+- JWT Configuration (`NINJA_JWT` settings):
+  - `SIGNING_KEY`: Secret key for signing tokens (from `JWT_SECRET` env var)
+  - `ALGORITHM`: Signing algorithm (default: HS256)
+  - `ACCESS_TOKEN_LIFETIME`: Access token expiration (default: 2 weeks, from `JWT_EXP_DELTA_SECONDS`)
+  - `REFRESH_TOKEN_LIFETIME`: Refresh token expiration (default: 30 days)
+- Legacy environment variables (for backward compatibility):
   - `JWT_SECRET` (set via environment in production)
   - `JWT_ALGORITHM` (default: HS256)
   - `JWT_EXP_DELTA_SECONDS` (default: 2 weeks)
@@ -196,7 +220,7 @@ src/
     api.py                # Main NinjaAPI instance
     auth.py               # Django Ninja authentication classes
     backends.py           # Django authentication backend(s)
-    jwt.py                # JWT build/verify helpers
+    tokens.py             # Custom JWT token classes (access & refresh)
     templates/            # Minimal UI templates
     static/               # Static assets (if used)
 manage.py
