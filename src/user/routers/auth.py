@@ -1,17 +1,18 @@
+from django.conf import settings
 from django.contrib.auth import authenticate
 from ninja import Router
 from ninja.errors import HttpError
 
-from ..jwt import build_jwt_for_user
 from ..models import User
-from ..schemas import LoginRequest, TokenResponse
+from ..schemas import LoginRequest, RefreshRequest, TokenResponse
+from ..tokens import CustomAccessToken, CustomRefreshToken
 
 router = Router()
 
 
 @router.post('/login', response=TokenResponse, auth=None)
 def login(request, payload: LoginRequest):
-    """User login endpoint - returns JWT token for valid credentials."""
+    """User login endpoint - returns JWT access and refresh tokens for valid credentials."""
     user = authenticate(request, email=payload.email, password=payload.password)
 
     if user is None:
@@ -20,6 +21,41 @@ def login(request, payload: LoginRequest):
     if user.status != User.STATUS_ACTIVE:
         raise HttpError(403, 'User not active')
 
-    token, expires_in = build_jwt_for_user(user)
+    # Generate tokens
+    refresh = CustomRefreshToken.for_user(user)
+    access = CustomAccessToken.for_user(user)
 
-    return TokenResponse(access_token=token, token_type='Bearer', expires_in=expires_in)
+    return TokenResponse(
+        access_token=str(access),
+        refresh_token=str(refresh),
+        token_type='Bearer',
+        expires_in=int(settings.NINJA_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
+    )
+
+
+@router.post('/refresh', response=TokenResponse, auth=None)
+def refresh_token(request, payload: RefreshRequest):
+    """Token refresh endpoint - returns new access token using refresh token."""
+    try:
+        refresh = CustomRefreshToken(payload.refresh_token)
+    except Exception:
+        raise HttpError(401, 'Invalid or expired refresh token')
+
+    # Get user and validate status
+    try:
+        user = User.objects.get(id=refresh['sub'])
+    except User.DoesNotExist:
+        raise HttpError(401, 'User not found')
+
+    if user.status != User.STATUS_ACTIVE:
+        raise HttpError(403, 'User not active')
+
+    # Generate new access token
+    access = CustomAccessToken.for_user(user)
+
+    return TokenResponse(
+        access_token=str(access),
+        refresh_token=str(refresh),
+        token_type='Bearer',
+        expires_in=int(settings.NINJA_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
+    )

@@ -1,28 +1,15 @@
-import jwt
-from ninja.security import HttpBearer
+from ninja_jwt.authentication import JWTAuth as BaseJWTAuth
 
-from .jwt import decode_jwt
 from .models import User
 
 
-class JWTAuth(HttpBearer):
-    """JWT-based authentication for users using Django Ninja's HttpBearer."""
+class JWTAuth(BaseJWTAuth):
+    """JWT-based authentication for users with status check."""
 
-    def authenticate(self, request, token: str):
-        try:
-            payload = decode_jwt(token)
-        except jwt.ExpiredSignatureError:
-            return None
-        except jwt.InvalidTokenError:
-            return None
+    def authenticate(self, request, token: str | None):
+        user = super().authenticate(request, token)
 
-        user_id = payload.get('sub')
-        if not user_id:
-            return None
-
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+        if user is None:
             return None
 
         if user.status != User.STATUS_ACTIVE:
@@ -34,7 +21,7 @@ class JWTAuth(HttpBearer):
 class AdminAuth(JWTAuth):
     """JWT authentication that also requires admin (staff) privileges."""
 
-    def authenticate(self, request, token: str):
+    def authenticate(self, request, token: str | None):
         user = super().authenticate(request, token)
 
         if user is None:

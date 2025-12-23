@@ -20,6 +20,10 @@ django==6.0
 django-jazzmin==3.0.1
     # via -r requirements.in
 django-ninja==1.5.1
+    # via
+    #   -r requirements.in
+    #   django-ninja-jwt
+django-ninja-jwt==5.3.5
     # via -r requirements.in
 jmespath==1.0.1
     # via
@@ -38,7 +42,7 @@ pydantic-core==2.41.5
 pygments==2.19.2
     # via rich
 pyjwt==2.10.1
-    # via -r requirements.in
+    # via django-ninja-jwt
 python-dateutil==2.9.0.post0
     # via botocore
 python-dotenv==1.2.1
