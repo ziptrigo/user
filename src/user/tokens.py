@@ -1,7 +1,10 @@
+from typing import Any
+
 from ninja_jwt.tokens import Token
 
 from .models import (
     RolePermission,
+    User,
     UserGlobalPermission,
     UserGlobalRole,
     UserServiceAssignment,
@@ -17,7 +20,7 @@ class CustomAccessToken(Token):
     lifetime_setting = 'ACCESS_TOKEN_LIFETIME'
 
     @classmethod
-    def for_user(cls, user):
+    def for_user(cls, user: User) -> 'CustomAccessToken':  # type: ignore[override]
         """
         Create a token for the given user with custom claims.
 
@@ -29,7 +32,7 @@ class CustomAccessToken(Token):
         token['email'] = user.email
 
         # Collect global permissions
-        global_perms = set()
+        global_perms: set[str] = set()
         direct_global_perms = UserGlobalPermission.objects.filter(user=user).select_related(
             'permission'
         )
@@ -37,24 +40,22 @@ class CustomAccessToken(Token):
             global_perms.add(ugp.permission.code)
 
         # Collect global roles and their permissions
-        global_roles = []
+        global_roles: list[str] = []
         user_global_roles = UserGlobalRole.objects.filter(user=user).select_related('role')
         for ugr in user_global_roles:
             global_roles.append(ugr.role.name)
-            role_perms = RolePermission.objects.filter(role=ugr.role).select_related(
-                'permission'
-            )
+            role_perms = RolePermission.objects.filter(role=ugr.role).select_related('permission')
             for rp in role_perms:
                 global_perms.add(rp.permission.code)
 
         # Collect service-specific data
-        services_data = {}
+        services_data: dict[str, dict[str, Any]] = {}
         assignments = UserServiceAssignment.objects.filter(user=user).select_related('service')
 
         for assignment in assignments:
             service_id = str(assignment.service.id)
-            service_perms = set()
-            service_roles = []
+            service_perms: set[str] = set()
+            service_roles: list[str] = []
 
             # Direct service permissions
             direct_perms = UserServicePermission.objects.filter(
@@ -114,7 +115,7 @@ class CustomRefreshToken(Token):
         return access
 
     @classmethod
-    def for_user(cls, user):
+    def for_user(cls, user: User) -> 'CustomRefreshToken':  # type: ignore[override]
         """Create a refresh token for the given user."""
         token = super().for_user(user)
         token['email'] = user.email
