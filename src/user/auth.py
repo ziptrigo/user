@@ -36,11 +36,11 @@ class AdminAuth(JWTAuth):
 
     def authenticate(self, request, token: str):
         user = super().authenticate(request, token)
-        
+
         if user is None:
             return None
-        
+
         if not user.is_staff:
             return None
-        
+
         return user

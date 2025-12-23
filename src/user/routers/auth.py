@@ -13,17 +13,13 @@ router = Router()
 def login(request, payload: LoginRequest):
     """User login endpoint - returns JWT token for valid credentials."""
     user = authenticate(request, email=payload.email, password=payload.password)
-    
+
     if user is None:
         raise HttpError(400, 'Invalid credentials')
-    
+
     if user.status != User.STATUS_ACTIVE:
         raise HttpError(403, 'User not active')
-    
+
     token, expires_in = build_jwt_for_user(user)
-    
-    return TokenResponse(
-        access_token=token,
-        token_type='Bearer',
-        expires_in=expires_in
-    )
+
+    return TokenResponse(access_token=token, token_type='Bearer', expires_in=expires_in)
